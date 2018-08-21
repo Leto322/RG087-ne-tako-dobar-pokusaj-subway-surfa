@@ -13,7 +13,6 @@ static float change;
 static float gd;
 static float speed;
 static float param;
-static float down_param;
 static float size_floor;
 static float parts[BR];
 //Uglovi tela trkaca.
@@ -62,7 +61,7 @@ int main(int argc, char** argv){
 
     //Parametar koji odredjuje brzinu animacije
     speed = 1;
-    down_param=0;
+
 
     //Velicina ploca u sceni.
     size_floor = 300;
@@ -169,11 +168,127 @@ static void on_reshape(int width, int height){
 }
 
 static void draw_scene(){
-
+  //TODO: napraviti scenu
 }
 
 static void on_timer(int id){
 
+   //Proverava se da li callback dolazi od odgovarajuceg tajmera.
+   if(id!=TIMER_ID)
+      return;
+
+   //Azurira se parametar animacije.
+   animation_parameter += param;
+
+   //Vrednosti su izabrane na osnovu testiranja raznih mogucnosti.
+
+   //U zavisnosti od parametra animacije se ubrzava animacija.
+   if((int)animation_parameter%500 == 0 && animation_parameter<(int)animation_parameter+0.2 && param<5 ){
+         param*=2;
+         speed*=1.5;
+    }
+
+
+    //U zavisnosti od strane u koju ide gornji deo ruke se podesava novi ugao.
+    if(change==0){
+        if(upper_arm<30)
+            upper_arm+=1*speed;
+        else{
+            upper_arm-=1*speed;
+            gd*=-1;
+            change = 1;
+        }
+    }
+    else{
+        if(upper_arm>-30)
+            upper_arm-=1*speed;
+        else{
+            upper_arm+=1*speed;
+            gd*=-1;
+            change = 0;
+        }
+    }
+
+    //U zavisnosti od strane u koju ide donji deo ruke se podesava novi ugao.
+    if(change==0){
+            if(lower_arm<118)
+                lower_arm+=0.3*speed;
+        else
+            lower_arm-=0.3*speed;
+        }
+    else{
+            if(lower_arm>90)
+                lower_arm-=0.3*speed;
+            else
+                lower_arm+=0.3*speed;
+        }
+
+
+    //U zavisnosti od smera u koji ide gornji deo desne noge se podesava novi ugao.
+    if(change==0){
+        if(upperr_leg<40)
+            upperr_leg+=1*speed;
+        else
+            upperr_leg-=1*speed;
+        }
+    else{
+        if(upperr_leg>-20)
+            upperr_leg-=1*speed;
+        else
+            upperr_leg+=1*speed;
+        }
+
+
+    //U zavisnosti od smera u koji ide gornji deo leve noge se podesava novi ugao.
+    if(change==1){
+        if(upperl_leg<40)
+            upperl_leg+=1*speed;
+        else
+            upperl_leg-=1*speed;
+        }
+    else{
+        if(upperl_leg>-20)
+            upperl_leg-=1*speed;
+        else
+            upperl_leg+=1*speed;
+        }
+
+    //U zavisnosti od smera u koji ide donji deo leve noge se podesava novi ugao.
+    if(change==1){
+        if(lowerl_leg<0)
+            lowerl_leg+=1.66*speed;
+        else
+            lowerl_leg-=1.66*speed;
+    }
+    else{
+        if(lowerl_leg>100)
+            lowerl_leg-=1.66*speed;
+        else
+            lowerl_leg+=1.66*speed;
+    }
+
+    //U zavisnosti od smera u koji ide donji deo desne noge se podesava novi ugao.
+    if(change==0){
+        if(lowerr_leg<0)
+            lowerr_leg+=1.66*speed;
+        else
+            lowerr_leg-=1.66*speed;
+    }
+    else{
+        if(lowerr_leg>100)
+            lowerr_leg-=1.66;
+        else
+            lowerr_leg+=1.66;
+    }
+
+
+    //Forsira se ponovno isrtavanje prozora.
+    glutPostRedisplay();
+
+    //Po potrebi se ponovo postavlja tajmer.
+    if(animation_ongoing){
+        glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+    }
 }
 
 //Funkcija koja crta trkaca.
