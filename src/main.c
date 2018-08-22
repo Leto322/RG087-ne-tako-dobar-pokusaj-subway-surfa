@@ -83,11 +83,13 @@ int main(int argc, char** argv){
     }
 
     //Obavlja se OpenGL inicijalizacija.
-    glClearColor(0,0,0,0);
+    glClearColor(0.52,0.81,0.92,0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Pozicija svetla
     GLfloat light_position[] = {1, 2, 1, 0};
@@ -167,8 +169,56 @@ static void on_reshape(int width, int height){
     glutPostRedisplay();
 }
 
-static void draw_scene(){
-  //TODO: napraviti scenu
+//Iscrtavanje scene
+static void draw_scene(void){
+    //Pomocni parametar
+    int i;
+
+    //Iscrtava se BR delova koji se sastoje od podne ploce i po dva zida
+    for(i=0;i<BR;i++){
+        glPushMatrix();
+            glScalef(0.3,0.3,1);
+            parts[i]+=param;
+
+            //Ukoliko deo ode iza trkaca vraca se na kraj staze
+            if(parts[i]>size_floor){
+                parts[i]-=BR*size_floor;
+            }
+              //Razlicitih su boja zbog testiranja a planiram da stavim teksturu
+            if(i==1)
+                glColor4f(1,0,0,1);
+            else if(i==2)
+                glColor4f(0,1,0,1);
+            else
+                glColor4f(0,0,1,1);
+
+            //Crta se podna ploca
+            glScalef(0.3, 0.001, 1);
+            glTranslatef(0, 0, parts[i]);
+            glutSolidCube(size_floor);
+            glScalef((float)10/3, 1000, 1);
+
+            glScalef(3,3,1);
+
+
+            //Crta se levi zid
+            glPushMatrix();
+            glTranslatef(-16, 10, 0);
+            glScalef(2,20, size_floor);
+            glutSolidCube(1);
+            glPopMatrix();
+
+            //Crta se desni zid
+            glPushMatrix();
+            glTranslatef(16, 10, 0);
+            glScalef(2,20, size_floor);
+            glutSolidCube(1);
+            glPopMatrix();
+
+        glPopMatrix();
+
+    }
+
 }
 
 static void on_timer(int id){
@@ -191,94 +241,147 @@ static void on_timer(int id){
 
     //U zavisnosti od strane u koju ide gornji deo ruke se podesava novi ugao.
     if(change==0){
-        if(upper_arm<30)
+        if(upper_arm<35){
             upper_arm+=1*speed;
-        else{
+            if(upper_arm>35)
+                upper_arm=35;
+        }else{
             upper_arm-=1*speed;
             gd*=-1;
             change = 1;
+            if(upper_arm<-35){
+                upper_arm=-35;
+                change=0;
+            }
         }
     }
     else{
-        if(upper_arm>-30)
+        if(upper_arm>-35){
             upper_arm-=1*speed;
-        else{
+            if(upper_arm<-35)
+                upper_arm=-35;
+        }else{
             upper_arm+=1*speed;
             gd*=-1;
             change = 0;
+            if(upper_arm>35){
+                upper_arm=35;
+                change=1;
+              }
         }
     }
 
     //U zavisnosti od strane u koju ide donji deo ruke se podesava novi ugao.
     if(change==0){
-            if(lower_arm<118)
-                lower_arm+=0.3*speed;
-        else
+        if(lower_arm<118){
+            lower_arm+=0.3*speed;
+            if(lower_arm>118)
+                lower_arm=118;
+        }else
             lower_arm-=0.3*speed;
+            if(lower_arm<90)
+                lower_arm=90;
+
         }
     else{
-            if(lower_arm>90)
-                lower_arm-=0.3*speed;
-            else
-                lower_arm+=0.3*speed;
+        if(lower_arm>90){
+            lower_arm-=0.3*speed;
+            if(lower_arm<90)
+                lower_arm=90;
+        }else
+            lower_arm+=0.3*speed;
+            if(lower_arm>118)
+                lower_arm=118;
         }
 
 
     //U zavisnosti od smera u koji ide gornji deo desne noge se podesava novi ugao.
     if(change==0){
-        if(upperr_leg<40)
+        if(upperr_leg<40){
             upperr_leg+=1*speed;
-        else
+            if(upperr_leg>40)
+                upperr_leg=40;
+        }else
             upperr_leg-=1*speed;
+            if(upperr_leg<-20)
+                upperr_leg=-20;
         }
     else{
-        if(upperr_leg>-20)
+        if(upperr_leg>-20){
             upperr_leg-=1*speed;
-        else
+            if(upperr_leg<-20)
+                upperr_leg=-20;
+        }else
             upperr_leg+=1*speed;
+            if(upperr_leg>40)
+                upperr_leg=40;
         }
 
 
     //U zavisnosti od smera u koji ide gornji deo leve noge se podesava novi ugao.
     if(change==1){
-        if(upperl_leg<40)
+        if(upperl_leg<40){
             upperl_leg+=1*speed;
-        else
+            if(upperl_leg>40)
+                upperl_leg=40;
+        }else
             upperl_leg-=1*speed;
+            if(upperl_leg<-20)
+                upperl_leg=-20;
         }
     else{
-        if(upperl_leg>-20)
+        if(upperl_leg>-20){
             upperl_leg-=1*speed;
-        else
+            if(upperl_leg<-20)
+                upperl_leg=-20;
+        }else
             upperl_leg+=1*speed;
+            if(upperl_leg>40)
+                upperl_leg=40;
         }
 
     //U zavisnosti od smera u koji ide donji deo leve noge se podesava novi ugao.
     if(change==1){
-        if(lowerl_leg<0)
-            lowerl_leg+=1.66*speed;
-        else
-            lowerl_leg-=1.66*speed;
+        if(lowerl_leg<0){
+            lowerl_leg+=1.6*speed;
+            if(lowerl_leg>0)
+                lowerl_leg=0;
+        }else
+            lowerl_leg-=1.6*speed;
+            if(lowerl_leg<-100)
+                lowerl_leg=-100;
     }
     else{
-        if(lowerl_leg>100)
-            lowerl_leg-=1.66*speed;
-        else
-            lowerl_leg+=1.66*speed;
+        if(lowerl_leg>-100){
+            lowerl_leg-=1.6*speed;
+            if(lowerl_leg<-100)
+                lowerl_leg=-100;
+        }else
+            lowerl_leg+=1.6*speed;
+            if(lowerl_leg>0)
+                lowerl_leg=0;
     }
 
     //U zavisnosti od smera u koji ide donji deo desne noge se podesava novi ugao.
     if(change==0){
-        if(lowerr_leg<0)
-            lowerr_leg+=1.66*speed;
-        else
-            lowerr_leg-=1.66*speed;
+        if(lowerr_leg<0){
+            lowerr_leg+=1.6*speed;
+            if(lowerr_leg>0)
+                lowerr_leg=0;
+        }else
+            lowerr_leg-=1.6*speed;
+            if(lowerr_leg<-100)
+                lowerr_leg=-100;
     }
     else{
-        if(lowerr_leg>100)
-            lowerr_leg-=1.66;
-        else
-            lowerr_leg+=1.66;
+        if(lowerr_leg>-100){
+            lowerr_leg-=1.6*speed;
+            if(lowerr_leg<-100)
+                lowerr_leg=-100;
+        }else
+            lowerr_leg+=1.6*speed;
+            if(lowerr_leg>0)
+                lowerr_leg=0;
     }
 
 
@@ -297,8 +400,8 @@ static void draw_robo(void){
     quad = gluNewQuadric();
     glPushMatrix();
 
-    //glRotatef(180,0,1,0);
-    glTranslatef(0,2.85,0);
+    glRotatef(180,0,1,0);
+    glTranslatef(0,3,0);
 
     //gd pomera trkaca gore-dole za male vrednosti.
     glTranslatef(0, gd, 0);
@@ -412,7 +515,7 @@ static void draw_robo(void){
                 glPushMatrix();
                 //Koleno + potkolenica.
                 glTranslatef(0, -0.95, 0);
-                glRotatef(lowerl_leg, 1, 0, 0);
+                glRotatef(-lowerl_leg, 1, 0, 0);
                 glutSolidSphere(0.16, 40, 40);
                     glPushMatrix();
                         glTranslatef(0, -0.12,0);
@@ -443,7 +546,7 @@ static void draw_robo(void){
                 glPushMatrix();
                 //Koleno + potkolenica.
                 glTranslatef(0, -0.95, 0);
-                glRotatef(lowerr_leg, 1, 0, 0);
+                glRotatef(-lowerr_leg, 1, 0, 0);
                 glutSolidSphere(0.16, 40, 40);
                     glPushMatrix();
                         glTranslatef(0, -0.12,0);
@@ -460,6 +563,19 @@ static void draw_robo(void){
         glPopMatrix();
     glPopMatrix();
     }
+
+    //Senka trkaca
+    glPushMatrix();
+      glColor4f(0.3,0.3,0.3,0.8);
+      glTranslatef(0.17,-2.93,0.4);
+      glRotatef(90,1,0,0);
+      glRotatef(-15,0,0,1);
+      glScalef(0.75,1.1,1);
+      gluQuadricDrawStyle(quad,GLU_FILL);
+      gluDisk(quad, 0,1.2,30,30);
+    glPopMatrix();
+
+
     glPopMatrix();
 }
 
@@ -471,14 +587,14 @@ static void on_display(void){
     //Podesava se vidna tacka
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(5,7,5,0,0,0,0,1,0);
+    gluLookAt(0,10,20,0,0,0,0,1,0);
 	//gluLookAt(7,20,-10,0,0,0,0,1,0);
 
     //glRotatef(180, 0,1,0);
 
     /* Crtanje robota. */
     draw_robo();
-//    draw_scene();
+    draw_scene();
 //     glPushMatrix();
 //         glColor4f(0.545098,0.270588,0.0745098,1);
 //         glScalef(1,0.001,1);
@@ -488,16 +604,16 @@ static void on_display(void){
 //
 
     //Crtam koordinatni sistem
-    glPushMatrix();
-        glDisable(GL_LIGHTING);
-        glBegin(GL_POINTS);
-        glColor3f(1,1,1);
-        glVertex3f(10, 0, 0);
-        glVertex3f(0, 10, 0);
-        glVertex3f(0, 0, 10);
-        glEnd();
-        glEnable(GL_LIGHTING);
-    glPopMatrix();
+    // glPushMatrix();
+    //     glDisable(GL_LIGHTING);
+    //     glBegin(GL_POINTS);
+    //     glColor3f(1,1,1);
+    //     glVertex3f(10, 0, 0);
+    //     glVertex3f(0, 10, 0);
+    //     glVertex3f(0, 0, 10);
+    //     glEnd();
+    //     glEnable(GL_LIGHTING);
+    // glPopMatrix();
 
     //Nova slika se salje na ekran.
     glutSwapBuffers();
