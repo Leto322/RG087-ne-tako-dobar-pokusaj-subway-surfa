@@ -61,12 +61,12 @@ void updateMovement(){
       }
       //Ako se krece desno i nova pozicija mu je 2(skroz desno).
       else{
-        if(movement<8){
+        if(movement<10){
           movement+=0.1*speed;
           runner.xpos+=0.1*speed;
-          if(movement>8){
-            movement=8;
-            runner.xpos-=(movement-8);
+          if(movement>10){
+            movement=10;
+            runner.xpos-=(movement-10);
           }
         }
         else{
@@ -77,12 +77,12 @@ void updateMovement(){
     else{
       //Ako se krece levo i nova pozicija mu je 0(skroz levo).
       if(position==0){
-        if(movement>-8){
+        if(movement>-10){
           movement-=0.1*speed;
           runner.xpos-=0.1*speed;
-          if(movement<-8){
-            movement=-8;
-            runner.xpos+=-(movement+8);
+          if(movement<-10){
+            movement=-10;
+            runner.xpos+=-(movement+10);
           }
         }
         else{
@@ -260,4 +260,12 @@ void updateRoad(){
   for(i=0;i<BR;i++){
     parts[i]+=param;
   }
+}
+
+void updateObstacle(){
+    int i;
+    for(i=0;i<MAX_OBSTACLES;i++){
+        if(obstacles[i].ypos!=-1)
+            obstacles[i].zpos+=param;
+    }
 }

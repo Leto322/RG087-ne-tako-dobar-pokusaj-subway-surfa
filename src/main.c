@@ -1,13 +1,15 @@
 #include "main.h"
 #include "movement.h"
 #include "drawing.h"
-
+#include "image.h"
 
 //Deklaracija callback funkcija.
 static void on_display(void);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
 static void on_timer(int);
+
+
 
 int main(int argc, char** argv){
 
@@ -37,6 +39,7 @@ int main(int argc, char** argv){
     glEnable(GL_NORMALIZE);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -129,17 +132,19 @@ static void on_timer(int id){
    animation_parameter += param;
 
    //U zavisnosti od parametra animacije se ubrzava animacija.
-   if((int)animation_parameter%300 == 0 && animation_parameter<(int)animation_parameter+0.2 && param < 20){
+   if((int)animation_parameter%400 == 0 && animation_parameter<(int)animation_parameter+0.2 && param < 16){
          param*=2;
          speed*=1.5;
     }
 
 
     //Funkcije koje vrse promenu parametara animacije.
+    updateObstacle();
     updateRoad();
     updateJump();
     updateMovement();
     updateAngles();
+
 
 
     //Forsira se ponovno isrtavanje prozora.
@@ -164,9 +169,9 @@ void initialize(){
   upperl_leg = 0;
 
   gd = 0.02;
-  speed = 1;
+  speed = 2;
   size_floor = 300;
-  param = 0.2;
+  param = 0.8;
 
   animation_ongoing = 0;
   animation_parameter = 0;
@@ -179,9 +184,11 @@ void initialize(){
   jump = 0;
   dir = 0;
 
+  srand(time(NULL));
+
   //Inicijalizuje se pozicija trkaca i dimenzije kvadra koji ga obuhvata.
   runner.xpos = 0;
-  runner.ypos = 2.4;
+  runner.ypos = 2.35;
   runner.zpos = 0;
 
   runner.x = 2.35;
@@ -194,6 +201,85 @@ void initialize(){
   for(i=0;i<BR;i++){
       parts[i] = -i*size_floor;
   }
+
+  for(i=0;i<MAX_OBSTACLES;i++){
+      obstacles[i].xpos = 0;
+      obstacles[i].ypos = -1;
+      obstacles[i].zpos = -(BR-1)*size_floor+size_floor/3;
+
+
+      obstacles[i].x = 5;
+      obstacles[i].y = 5;
+      obstacles[i].z = 5;
+  }
+
+  Image * image;
+
+  glTexEnvf(GL_TEXTURE_ENV,
+            GL_TEXTURE_ENV_MODE,
+            GL_REPLACE);
+
+  /*
+   * Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz
+   * fajla.
+   */
+  image = image_init(0, 0);
+
+  /* Kreira se prva tekstura. */
+  image_read(image, FILENAME0);
+  //
+  // /* Generisu se identifikatori tekstura. */
+  glGenTextures(3, names);
+
+  glBindTexture(GL_TEXTURE_2D, names[0]);
+  glTexParameteri(GL_TEXTURE_2D,
+                  GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D,
+                  GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D,
+                  GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,
+                  GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+               image->width, image->height, 0,
+               GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+  /* Kreira se druga tekstura. */
+  image_read(image, FILENAME1);
+
+  glBindTexture(GL_TEXTURE_2D, names[1]);
+  glTexParameteri(GL_TEXTURE_2D,
+                  GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D,
+                  GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+               image->width, image->height, 0,
+               GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+               /* Kreira se druga tekstura. */
+   image_read(image, FILENAME2);
+
+   glBindTexture(GL_TEXTURE_2D, names[2]);
+   glTexParameteri(GL_TEXTURE_2D,
+                   GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D,
+                   GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                image->width, image->height, 0,
+                GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+
+  /* Iskljucujemo aktivnu teksturu */
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  /* Unistava se objekat za citanje tekstura iz fajla. */
+  image_done(image);
+
+
 
   //Pozicija svetla
   GLfloat light_position[] = {1, 2, 1, 0};
@@ -252,6 +338,14 @@ static void on_display(void){
 
     //Crtanje puta.
     draw_road();
+
+    //Crtanje prepreka;
+    draw_obstacle();
+    //int i;
+    // for(i=0;i<MAX_OBSTACLES;i++){
+    //     if(obstacles[i].ypos!=-1)
+    //     printf("x: %lf, y: %lf, z: %lf\n", obstacles[i].xpos,obstacles[i].ypos,obstacles[i].zpos);
+    // }
 
     glutSwapBuffers();
 }

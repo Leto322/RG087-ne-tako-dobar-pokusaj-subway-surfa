@@ -6,12 +6,19 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 
 #define TIMER_ID 0
 #define BR 5
-#define TIMER_INTERVAL 10
+#define TIMER_INTERVAL 20
 #define PI 3.1415926535
+#define MAX_OBSTACLES (7*BR)
 
+//Imena fajlova sa teksturama.
+#define FILENAME0 "box.bmp"
+#define FILENAME1 "concrete.bmp"
+#define FILENAME2 "wall.bmp"
 
 //Deklaracija funkcije za inicijalizaciju.
 void initialize();
@@ -23,6 +30,8 @@ typedef struct {
   float ypos;
   float zpos;
 
+
+  //Dimenizje po x, y i z osi.
   float x;
   float y;
   float z;
@@ -30,8 +39,21 @@ typedef struct {
 }Runner;
 
 
+typedef struct{
+    float xpos;
+    float ypos;
+    float zpos;
 
-//Staticke promenljive
+    float x;
+    float y;
+    float z;
+}Obstacle;
+
+
+//Promenljive
+
+//Identifikatori tekstura.
+GLuint names[3];
 
 //Promena smera kretanja delova tela.
 float change;
@@ -50,6 +72,8 @@ float size_floor;
 
 //Niz pozicija delova koji cine put.
 float parts[BR];
+
+Obstacle obstacles[MAX_OBSTACLES];
 
 //Uglovi tela trkaca
 float lower_arm;

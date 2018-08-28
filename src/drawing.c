@@ -189,10 +189,11 @@ void draw_robo(void){
 
     //Senka trkaca
     glTranslatef(0,-runner.ypos+2.4,0);
+    glTranslatef(0,-gd,0);
     glPushMatrix();
         glColor4f(0.3,0.3,0.3,0.8);//-(jump/7)*0.8);
 
-        glTranslatef(0.17,-2.93,0.4);
+        glTranslatef(0.17,-3.01,0.4);
         glRotatef(90,1,0,0);
         glRotatef(-15,0,0,1);
         glScalef(0.75,1.1,1);
@@ -204,65 +205,224 @@ void draw_robo(void){
     glPopMatrix();
 }
 
+void draw_obstacle(){
+    int i;
+    for(i=0;i<MAX_OBSTACLES;i++){
+        if(obstacles[i].ypos!=-1){
+            glPushMatrix();
+                glTranslatef(obstacles[i].xpos, obstacles[i].ypos, obstacles[i].zpos);
+                glScalef(obstacles[i].x,obstacles[i].y,obstacles[i].z);
+                glBindTexture(GL_TEXTURE_2D, names[0]);
+                glDisable(GL_BLEND);
+                glBegin(GL_QUADS);
+                    glNormal3f(0,0,1);
+                    glTexCoord2f(0,0);
+                    glVertex3f(-0.5,-0.5,0.5);
+                    glTexCoord2f(1,0);
+                    glVertex3f(0.5,-0.5,0.5);
+                    glTexCoord2f(1,1);
+                    glVertex3f(0.5,0.5,0.5);
+                    glTexCoord2f(0,1);
+                    glVertex3f(-0.5,0.5,0.5);
+
+                    glNormal3f(0,-1,0);
+                    glTexCoord2f(0,0);
+                    glVertex3f(-0.5,-0.5,0.5);
+                    glTexCoord2f(1,0);
+                    glVertex3f(0.5,-0.5,0.5);
+                    glTexCoord2f(1,1);
+                    glVertex3f(0.5,-0.5,-0.5);
+                    glTexCoord2f(0,1);
+                    glVertex3f(-0.5,-0.5,-0.5);
+
+                    glNormal3f(-1,0,0);
+                    glTexCoord2f(0,0);
+                    glVertex3f(-0.5,-0.5,0.5);
+                    glTexCoord2f(1,0);
+                    glVertex3f(-0.5,0.5,0.5);
+                    glTexCoord2f(1,1);
+                    glVertex3f(-0.5,0.5,-0.5);
+                    glTexCoord2f(0,1);
+                    glVertex3f(-0.5,-0.5,-0.5);
+
+                    glNormal3f(1,0,0);
+                    glTexCoord2f(0,0);
+                    glVertex3f(0.5,-0.5,0.5);
+                    glTexCoord2f(1,0);
+                    glVertex3f(0.5,-0.5,-0.5);
+                    glTexCoord2f(1,1);
+                    glVertex3f(0.5,0.5,-0.5);
+                    glTexCoord2f(0,1);
+                    glVertex3f(0.5,0.5,0.5);
+
+                    glNormal3f(0,1,0);
+                    glTexCoord2f(0,0);
+                    glVertex3f(-0.5,0.5,-0.5);
+                    glTexCoord2f(1,0);
+                    glVertex3f(0.5,0.5,-0.5);
+                    glTexCoord2f(1,1);
+                    glVertex3f(0.5,0.5,0.5);
+                    glTexCoord2f(0,1);
+                    glVertex3f(-0.5,0.5,0.5);
+
+
+                    glNormal3f(0,0,-1);
+                    glTexCoord2f(0,0);
+                    glVertex3f(-0.5,-0.5,-0.5);
+                    glTexCoord2f(1,0);
+                    glVertex3f(0.5,-0.5,-0.5);
+                    glTexCoord2f(1,1);
+                    glVertex3f(0.5,0.5,-0.5);
+                    glTexCoord2f(0,1);
+                    glVertex3f(-0.5,0.5,-0.5);
+                glEnd();
+                glEnable(GL_BLEND);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            glPopMatrix();
+        }
+    }
+}
+
+//Dodajemo od 0 do 2 prepreke na svakih 100 unita na poslednjoj ploci
+void add_obstacles(void){
+    int i;
+    int j;
+    int r;
+    int k;
+    int place;
+    int previous;
+    for(i=0;i<3;i++){
+        r = rand()%3;
+        previous = -1;
+        for(k=0;k<r;k++){
+            place = rand()%3;
+            if(place == previous){
+                place = (previous+1)%3;
+            }
+            for(j=0;j<MAX_OBSTACLES;j++){
+                if(obstacles[j].ypos==-1){
+                    switch(place){
+                        case 0:
+                            obstacles[j].xpos = -10;
+                            obstacles[j].ypos = 2.5;
+                            obstacles[j].zpos -= i*(size_floor/3);
+                            break;
+                        case 1:
+                            obstacles[j].xpos = 0;
+                            obstacles[j].ypos = 2.5;
+                            obstacles[j].zpos -= i*(size_floor/3);
+                            break;
+                        case 2:
+                            obstacles[j].xpos = 10;
+                            obstacles[j].ypos = 2.5;
+                            obstacles[j].zpos -= i*(size_floor/3);
+                            break;
+                    }
+                    break;
+                }
+            }
+            previous=place;
+
+        }
+
+    }
+}
+
 //Iscrtavanje scene
 void draw_road(void){
     //Pomocni parametar
     int i;
-
+    int j;
     //Iscrtava se BR delova koji se sastoje od podne ploce i po dva zida
     for(i=0;i<BR;i++){
-        glPushMatrix();
-            glScalef(0.3,0.3,1);
 
+            glPushMatrix();
             //Ukoliko deo ode iza trkaca vraca se na kraj staze
             if(parts[i]>size_floor){
                 parts[i]-=BR*size_floor;
-            }
 
-            //Razlicitih su boja zbog testiranja a planiram da stavim teksturu
-            switch(i){
-              case 0:
-                glColor4f(1,0,0,1);
-                break;
-              case 1:
-                glColor4f(0,1,0,1);
-                break;
-              case 2:
-                glColor4f(0,0,1,1);
-                break;
-              case 3:
-                glColor4f(1,1,0,1);
-                break;
-              case 4:
-                glColor4f(1,0,1,1);
-                break;
+                //Prekida se sa iscrtavanjem prepreka koje su prosle iza igraca;
+                for(j=0;j<MAX_OBSTACLES;j++){
+                    if(obstacles[i].zpos>size_floor)
+                        obstacles[i].ypos = -1;
+                        obstacles[i].zpos = -(BR-1)*size_floor+size_floor/3;
+                }
+
+                //Svaki pud kada ploca ode na kraj pravimo prepreke na njoj
+                //Pomocni parametar
+                add_obstacles();
+
+
             }
 
 
-            //Crta se podna ploca
-            glScalef(0.3, 0.001, 1);
+
+            //Crta se podna ploca i ukljucuje textura
             glTranslatef(0, 0, parts[i]);
-            glutSolidCube(size_floor);
-            glScalef((float)10/3, 1000, 1);
+            glBindTexture(GL_TEXTURE_2D, names[1]);
+            glBegin(GL_QUADS);
+                glNormal3f(0, 1, 0);
+
+                glTexCoord2f(0,15);
+                glVertex3f(-15,0,size_floor/2);
+
+                glTexCoord2f(1, 15);
+                glVertex3f(15,0,size_floor/2);
+
+                glTexCoord2f(1,-15);
+                glVertex3f(15,0,-size_floor/2);
+
+                glTexCoord2f(0, -15);
+                glVertex3f(-15,0,-size_floor/2);
+            glEnd();
 
 
-            glScalef(3,3,1);
 
-            //Crta se levi zid
+
+            //Crta se levi zid i ukljucuje textura
             glPushMatrix();
-            glTranslatef(-16, 10, 0);
-            glScalef(2,20, size_floor);
-            glutSolidCube(1);
+            glTranslatef(-15,0,0);
+            glBindTexture(GL_TEXTURE_2D, names[2]);
+            glBegin(GL_QUADS);
+                glNormal3f(1, 0,0);
+
+                glTexCoord2f(5, 1);
+                glVertex3f(0,20,size_floor/2);
+
+                glTexCoord2f(5,0);
+                glVertex3f(0,0,size_floor/2);
+
+                glTexCoord2f(0, 0);
+                glVertex3f(0,0,-size_floor/2);
+
+                glTexCoord2f(0,1);
+                glVertex3f(0,20,-size_floor/2);
+            glEnd();
             glPopMatrix();
+
 
             //Crta se desni zid
             glPushMatrix();
-            glTranslatef(16, 10, 0);
-            glScalef(2,20, size_floor);
-            glutSolidCube(1);
+            glTranslatef(15, 0, 0);
+            glBegin(GL_QUADS);
+                glNormal3f(-1, 0, 0);
+
+                glTexCoord2f(5, 1);
+                glVertex3f(0,20,size_floor/2);
+
+                glTexCoord2f(5,0);
+                glVertex3f(0,0,size_floor/2);
+
+                glTexCoord2f(0, 0);
+                glVertex3f(0,0,-size_floor/2);
+
+                glTexCoord2f(0,1);
+                glVertex3f(0,20,-size_floor/2);
+            glEnd();
             glPopMatrix();
 
-
+            //Iskljucuje se textura
+            glBindTexture(GL_TEXTURE_2D, 0);
 
         glPopMatrix();
 

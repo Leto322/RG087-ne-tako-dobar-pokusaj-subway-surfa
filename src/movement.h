@@ -6,5 +6,6 @@ void updateJump();
 void updateAngles();
 void updateMovement();
 void updateRoad();
+void updateObstacle();
 
 #endif
