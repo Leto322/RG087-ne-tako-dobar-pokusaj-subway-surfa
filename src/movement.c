@@ -3,7 +3,7 @@
 
 
 //Funkcija koja je zaduzena za poziciju trkaca prilikom skoka   (y-osa).
-void updateJump(){
+void update_jump(){
 
   //U zavisnosti od toga da li je trkac u skoku i da li ide gore ili dole podesavaju se parametri.
   if(jumping){
@@ -40,7 +40,7 @@ void updateJump(){
 }
 
 //Funkcija koja je zaduzena za poziciju trkaca pri kretanju levo-desno  (x-osa).
-void updateMovement(){
+void update_movement(){
 
   //U zavistnosti od toga da li se trakac krece levo-desno i smera kretanja se podesavaju parametri
   if(moving){
@@ -108,7 +108,7 @@ void updateMovement(){
 }
 
 //Funkcija koja menja uglove delova tela trkaca.
-void updateAngles(){
+void update_angles(){
 
   //U zavisnosti od strane u koju ide gornji deo ruke se podesava novi ugao.
   if(change==0){
@@ -254,7 +254,7 @@ void updateAngles(){
 }
 
 //Funkcija zaduzena za podesavanje parametra kretanja puta i zidova.
-void updateRoad(){
+void update_road(){
   int i;
 
   for(i=0;i<BR;i++){
@@ -262,7 +262,9 @@ void updateRoad(){
   }
 }
 
-void updateObstacle(){
+
+//Funkcija zaduzena za podesavanje parametra kretanja prepreka.
+void update_obstacle(){
     int i;
     for(i=0;i<MAX_OBSTACLES;i++){
         if(obstacles[i].ypos!=-1)
@@ -270,11 +272,58 @@ void updateObstacle(){
     }
 }
 
-void updateCoins(){
+
+//Funkcija zaduzena za podesavanje parametra kretanja novcica.
+void update_coins(){
     int i;
     for(i=0;i<MAX_COINS;i++){
         if(coins[i].ypos!=-1)
             coins[i].zpos+=param;
     }
 
+}
+
+
+void check_collisions(){
+    if(invulnerable)
+        return;
+
+    int i;
+
+    //Prepreke
+    for(i=0;i<MAX_OBSTACLES;i++){
+        if(obstacles[i].ypos != -1){
+            if(abs(runner.xpos-obstacles[i].xpos)<runner.x/2 + obstacles[i].x/2){
+                if(abs(runner.ypos-obstacles[i].ypos)<runner.y/2+obstacles[i].y/2){
+                    if(abs(runner.zpos-obstacles[i].zpos)<runner.z/2+obstacles[i].z/2){
+                        //invulnerable=1;
+                        num_lives-=1;
+                        obstacles[i].ypos=-1;
+                        obstacles[i].zpos= -(BR-1)*size_floor+size_floor/3;
+                        param/=2;
+                        speed/=3/2;
+                        shake = 5;
+                        return;
+                    } //cetvrti if
+                } //treci if
+            } //drugi if
+        } //prvi if
+    } //for
+
+
+    //Novcici
+    for(i=0;i<MAX_COINS;i++){
+        if(coins[i].ypos != -1){
+            if(abs(runner.xpos-coins[i].xpos)<runner.x/2 + coins[i].r/2){
+                if(abs(runner.ypos-coins[i].ypos)<runner.y/2+coins[i].r/2){
+                    if(abs(runner.zpos-coins[i].zpos)<runner.z/2+coins[i].r/2){
+                        num_coins+=1;
+                        coins[i].ypos=-1;
+                        coins[i].zpos= -(BR-1)*size_floor+size_floor/3;
+                        return;
+                    } //cetvrti if
+                } //treci if
+            } //drugi if
+        } //prvi if
+    } //for
 }

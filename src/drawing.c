@@ -31,7 +31,7 @@ void draw_robo(void){
   glRotatef(180,0,1,0);
 
 
-    //Gornji deo.
+  //Gornji deo.
   {
         glPushMatrix();
             glRotatef(15*sin(animation_parameter*0.1),0,1,0);
@@ -211,6 +211,7 @@ void draw_obstacles(){
     for(i=0;i<MAX_OBSTACLES;i++){
         if(obstacles[i].ypos!=-1){
             glPushMatrix();
+                //Svaka kutija se iscrtava pomocu 6 teksturisanih
                 glTranslatef(obstacles[i].xpos, obstacles[i].ypos, obstacles[i].zpos);
                 glScalef(obstacles[i].x,obstacles[i].y,obstacles[i].z);
                 glBindTexture(GL_TEXTURE_2D, names[0]);
@@ -284,7 +285,7 @@ void draw_obstacles(){
     }
 }
 
-//Dodajemo od 0 do 2 prepreke i 2-prepreke novcica na svakih 100 unita na poslednjoj ploci
+//Dodajemo od 0 do 2 prepreke i 3-prepreke novcica na svakih 100 unita na poslednjoj ploci
 void add_obstacles_and_coins(void){
     //Pomocne brojacke promenljive
     int i;
@@ -303,14 +304,17 @@ void add_obstacles_and_coins(void){
     //Pozicije na koje su eventualno stavljene prepreke
     int position1;
     int position2;
+
+
+    //Za jednu plocu imamo tri reda na koje mogu doci prepreke i novcici(za plocu velicine 300 imamo na 50, 150 i 250 po jednu liniju)
     for(i=0;i<3;i++){
-        r = rand()%3;
+        r = rand()%3; //Broj prepreka u datom redu
         previous = -1;
         position1=-1;
         position2=-1;
         for(k=0;k<r;k++){
-            place = rand()%3;
-            if(place == previous){
+            place = rand()%3; //Mesto u redu gde ide prepreka
+            if(place == previous){ //Ako je vec tu  stavljena prepreka
                 place = (previous+1)%3;
             }
             if(position1==-1)
@@ -342,6 +346,9 @@ void add_obstacles_and_coins(void){
             }
             previous=place;
         }
+
+
+        //Iste oznake kao za prepreke samo sto imamo moguca tri novcica u redu dok za prerpeke imamo maksimum dve
         r = rand()%(3-r);
         previous1=-1;
         previous2=-1;
@@ -402,7 +409,7 @@ void draw_road(void){
                         obstacles[i].zpos = -(BR-1)*size_floor+size_floor/3;
                     }
                 }
-
+                //Prekida se sa iscrtavanjem novcica koji su prosli iza igraca;
                 for(j=0;j<MAX_COINS;j++){
                     if(coins[i].zpos>size_floor/2){
                         coins[i].ypos = -1;
@@ -490,7 +497,7 @@ void draw_road(void){
 
 }
 
-
+//Iscrtavanje novcica
 void draw_coins(void){
     GLUquadricObj *quad;
     quad = gluNewQuadric();
@@ -503,26 +510,16 @@ void draw_coins(void){
                 glColor4f(1,1,0,1);
                 glRotatef(coin_rotation,0,1,0);
                 glTranslatef(0,0,-0.25);
-                gluCylinder(quad, 1, 1, 0.5, 50, 50);
-                gluDisk(quad, 0,1,30,30);
-                glTranslatef(0,0,0.5);
+                gluCylinder(quad, coins[i].r, coins[i].r, 0.5, 50, 50);
                 glRotatef(180,0,1,0);
-                gluDisk(quad, 0,1,30,30);
+                gluDisk(quad, 0,coins[i].r,30,30);
+                glRotatef(-180,0,1,0);
+                glTranslatef(0,0,0.5);
+                gluDisk(quad, 0,coins[i].r,30,30);
             glPopMatrix();
         }
     }
 
-    // glDisable(GL_LIGHTING);
-    //
-    // glColor3f(1,1,1);
-    // glLineWidth(12);
-    // glBegin(GL_LINES);
-    //     glVertex3f(0,0,3);
-    //     glVertex3f(0,0,-3);
-    //     glVertex3f(0,3,0);
-    //     glVertex3f(0,-3,0);
-    // glEnd();
-    // glEnable(GL_LIGHTING);
 
 
 }

@@ -22,14 +22,18 @@ int main(int argc, char** argv){
     glutInitWindowPosition(100,100);
     glutCreateWindow(argv[0]);
 
+
+    srand(time(NULL));
+
     //Inicijaliacija parametara i osvetljenja.
     initialize();
+    textures_and_lighting();
 
     //Registruju se callback funkcije.
     glutKeyboardFunc(on_keyboard);
     glutDisplayFunc(on_display);
     glutReshapeFunc(on_reshape);
-    glClearColor(0.52,0.81,0.92,0);
+
 
 
 
@@ -61,7 +65,7 @@ static void on_keyboard(unsigned char key, int x, int y){
         case 'g':
         case 'G':
             //Pogrece se animacija.
-            if(!animation_ongoing){
+            if(!animation_ongoing && !game_over){
                 animation_ongoing = 1;
                 glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
             }
@@ -70,6 +74,17 @@ static void on_keyboard(unsigned char key, int x, int y){
         case 'S':
             //Zaustavlja se animacija
             animation_ongoing = 0;
+            break;
+        case 'r':
+        case 'R':
+            //Restartuje se animacija
+            initialize();
+            glutPostRedisplay();
+            break;
+        case 'f':
+        case 'F':
+            //Otvara se igrica preko celog prozora
+            glutFullScreen();
             break;
         case 'd':
         case 'D':
@@ -140,12 +155,29 @@ static void on_timer(int id){
 
 
     //Funkcije koje vrse promenu parametara animacije.
-    updateObstacle();
-    updateRoad();
-    updateJump();
-    updateMovement();
-    updateAngles();
-    updateCoins();
+    update_obstacle();
+    update_road();
+    update_jump();
+    update_movement();
+    update_angles();
+    update_coins();
+
+    //Provera sudara.
+    check_collisions();
+
+    if(shake!=0){
+        shake-=1;
+    }
+
+    if(num_coins==20){
+        num_coins=0;
+        num_lives+=1;
+    }
+
+    if(num_lives==0){
+        game_over=1;
+        animation_ongoing=0;
+    }
 
 
 
@@ -156,6 +188,115 @@ static void on_timer(int id){
     if(animation_ongoing){
         glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
     }
+
+}
+
+void textures_and_lighting(){
+    Image * image;
+
+    glTexEnvf(GL_TEXTURE_ENV,
+              GL_TEXTURE_ENV_MODE,
+              GL_REPLACE);
+
+    /*
+     * Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz
+     * fajla.
+     */
+    image = image_init(0, 0);
+
+    /* Kreira se prva tekstura. */
+    image_read(image, FILENAME0);
+    //
+    // /* Generisu se identifikatori tekstura. */
+    glGenTextures(3, names);
+
+    glBindTexture(GL_TEXTURE_2D, names[0]);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+    /* Kreira se druga tekstura. */
+     image_read(image, FILENAME1);
+
+     glBindTexture(GL_TEXTURE_2D, names[1]);
+     glTexParameteri(GL_TEXTURE_2D,
+                     GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                     GL_TEXTURE_WRAP_T, GL_REPEAT);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                  image->width, image->height, 0,
+                  GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+                 /* Kreira se treca tekstura. */
+     image_read(image, FILENAME2);
+
+     glBindTexture(GL_TEXTURE_2D, names[2]);
+     glTexParameteri(GL_TEXTURE_2D,
+                     GL_TEXTURE_WRAP_S, GL_REPEAT);
+     glTexParameteri(GL_TEXTURE_2D,
+                     GL_TEXTURE_WRAP_T, GL_REPEAT);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                  image->width, image->height, 0,
+                  GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    /* Unistava se objekat za citanje tekstura iz fajla. */
+    image_done(image);
+
+
+
+
+      //Pozicija svetla
+      GLfloat light_position[] = {1, 2, 1, 0};
+
+      //Ambijentalna boja svetla.
+      GLfloat light_ambient[] = {0.1, 0.1, 0.1, 1};
+
+      //Difuzna boja svetla
+      GLfloat light_diffuse[] = {0.7,0.7,0.7,0.7,1};
+
+      //Spekularna boja svetla
+      GLfloat light_specular[] = {0.9, 0.9, 0.9, 1};
+
+      //Koeficijenti ambijentalne refleksije materijala.
+      GLfloat ambient_coeffs[] = {0.3, 0.3, 0.3, 1};
+
+      //Koeficijenti difuzne refleksije materijala.
+      GLfloat diffuse_coeffs[] = {0.4, 0.4, 0.4, 1};
+
+      //Koeficijenti spekularne refleksije materijala.
+      GLfloat specular_coeffs[] = {1,1,1,1};
+
+      //Koeficijent glatkosti materijala.
+      GLfloat shininess = 30;
+
+      //Podesavaju se parametri svetla.
+      glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+      glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+      glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+      glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+
+      //Podesavaju se parametri materijala
+      glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+      glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+      glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
+      glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+      glEnable(GL_COLOR_MATERIAL);
 
 }
 
@@ -185,9 +326,13 @@ void initialize(){
   jumping = 0;
   jump = 0;
   dir = 0;
-  coin_rotation=0;
 
-  srand(time(NULL));
+  coin_rotation=0;
+  num_coins=0;
+  num_lives=3;
+  invulnerable=0;
+  game_over=0;
+  shake = 0;
 
   //Inicijalizuje se pozicija trkaca i dimenzije kvadra koji ga obuhvata.
   runner.xpos = 0;
@@ -205,6 +350,8 @@ void initialize(){
       parts[i] = -i*size_floor;
   }
 
+
+  //Inicijalizuju se prepreke
   for(i=0;i<MAX_OBSTACLES;i++){
       obstacles[i].xpos = 0;
       obstacles[i].ypos = -1;
@@ -216,6 +363,7 @@ void initialize(){
       obstacles[i].z = 5;
   }
 
+  //Inicijalizuju se novcici
   for(i=0; i<MAX_COINS;i++){
       coins[i].xpos = 0;
       coins[i].ypos = -1;
@@ -223,111 +371,6 @@ void initialize(){
 
       coins[i].r = 1;
   }
-
-  Image * image;
-
-  glTexEnvf(GL_TEXTURE_ENV,
-            GL_TEXTURE_ENV_MODE,
-            GL_REPLACE);
-
-  /*
-   * Inicijalizuje se objekat koji ce sadrzati teksture ucitane iz
-   * fajla.
-   */
-  image = image_init(0, 0);
-
-  /* Kreira se prva tekstura. */
-  image_read(image, FILENAME0);
-  //
-  // /* Generisu se identifikatori tekstura. */
-  glGenTextures(3, names);
-
-  glBindTexture(GL_TEXTURE_2D, names[0]);
-  glTexParameteri(GL_TEXTURE_2D,
-                  GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D,
-                  GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D,
-                  GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D,
-                  GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-               image->width, image->height, 0,
-               GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-
-  /* Kreira se druga tekstura. */
-   image_read(image, FILENAME1);
-
-   glBindTexture(GL_TEXTURE_2D, names[1]);
-   glTexParameteri(GL_TEXTURE_2D,
-                   GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D,
-                   GL_TEXTURE_WRAP_T, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                image->width, image->height, 0,
-                GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-
-               /* Kreira se druga tekstura. */
-   image_read(image, FILENAME2);
-
-   glBindTexture(GL_TEXTURE_2D, names[2]);
-   glTexParameteri(GL_TEXTURE_2D,
-                   GL_TEXTURE_WRAP_S, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D,
-                   GL_TEXTURE_WRAP_T, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                image->width, image->height, 0,
-                GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
-
-
-  /* Iskljucujemo aktivnu teksturu */
-  glBindTexture(GL_TEXTURE_2D, 0);
-
-  /* Unistava se objekat za citanje tekstura iz fajla. */
-  image_done(image);
-
-
-
-  //Pozicija svetla
-  GLfloat light_position[] = {1, 2, 1, 0};
-
-  //Ambijentalna boja svetla.
-  GLfloat light_ambient[] = {0.1, 0.1, 0.1, 1};
-
-  //Difuzna boja svetla
-  GLfloat light_diffuse[] = {0.7,0.7,0.7,0.7,1};
-
-  //Spekularna boja svetla
-  GLfloat light_specular[] = {0.9, 0.9, 0.9, 1};
-
-  //Koeficijenti ambijentalne refleksije materijala.
-  GLfloat ambient_coeffs[] = {0.3, 0.3, 0.3, 1};
-
-  //Koeficijenti difuzne refleksije materijala.
-  GLfloat diffuse_coeffs[] = {0.4, 0.4, 0.4, 1};
-
-  //Koeficijenti spekularne refleksije materijala.
-  GLfloat specular_coeffs[] = {1,1,1,1};
-
-  //Koeficijent glatkosti materijala.
-  GLfloat shininess = 30;
-
-  //Podesavaju se parametri svetla.
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
-  //Podesavaju se parametri materijala
-  glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-  glEnable(GL_COLOR_MATERIAL);
 
 }
 
@@ -339,7 +382,9 @@ static void on_display(void){
     //Podesava se vidna tacka
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0,10,20,0,0,0,0,1,0);
+
+    //Funkcija za shake nadjena na internetu.
+    gluLookAt(0,10,22,sin(2*shake)*(0.5-shake/10),sin(3*shake)*(0.5-shake/10),0,0,1,0);
 
     //Crta se kvadar koji okruzuje trkaca
     //draw_cube(runner.xpos,runner.ypos,runner.zpos,runner.x,runner.y,runner.z);
@@ -352,19 +397,9 @@ static void on_display(void){
 
     //Crtanje prepreka;
     draw_obstacles();
-    // int i;
-    // for(i=0;i<MAX_OBSTACLES;i++){
-    //     if(obstacles[i].ypos!=-1)
-    //     printf("x: %lf, y: %lf, z: %lf\n", obstacles[i].xpos,obstacles[i].ypos,obstacles[i].zpos);
-    // }
 
+    //Crtanje novcica
     draw_coins();
-
-    // int i;
-    // for(i=0;i<MAX_COINS;i++){
-    //     if(coins[i].ypos!=-1)
-    //     printf("x: %lf, y: %lf, z: %lf\n", coins[i].xpos,coins[i].ypos,coins[i].zpos);
-    // }
 
     glutSwapBuffers();
 }

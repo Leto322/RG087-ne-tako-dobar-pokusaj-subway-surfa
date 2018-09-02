@@ -24,6 +24,8 @@
 //Deklaracija funkcije za inicijalizaciju.
 void initialize();
 
+void textures_and_lighting();
+
 
 //Definicija strukture koja predstavlja trkaca
 typedef struct {
@@ -39,7 +41,7 @@ typedef struct {
 
 }Runner;
 
-
+//Definicija strukture koja predstavlja prepreke
 typedef struct{
     float xpos;
     float ypos;
@@ -50,6 +52,8 @@ typedef struct{
     float z;
 }Obstacle;
 
+
+//Definicija strukture koja predstavlja novcice
 typedef struct{
     float xpos;
     float ypos;
@@ -60,6 +64,21 @@ typedef struct{
 
 
 //Promenljive
+
+//Parametar tresanja ekrana.
+int shake;
+
+//Parametar koji oznacava da li je igrac izgubio.
+int game_over;
+
+//Parametar koji govori da igrac ne moze da interaguje sa novcicima i preprekama. (0 moze 1 ne moze)
+int invulnerable;
+
+//Broj sakupljenih novcica. (na svakih 10 igrac dobija nov zivot)
+int num_coins;
+
+//Broj zivota. (kada dodje do 0 gubi igru)
+int num_lives;
 
 //Identifikatori tekstura.
 GLuint names[3];
