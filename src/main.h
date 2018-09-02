@@ -14,6 +14,7 @@
 #define TIMER_INTERVAL 20
 #define PI 3.1415926535
 #define MAX_OBSTACLES (7*BR)
+#define MAX_COINS (7*BR)
 
 //Imena fajlova sa teksturama.
 #define FILENAME0 "box.bmp"
@@ -49,6 +50,14 @@ typedef struct{
     float z;
 }Obstacle;
 
+typedef struct{
+    float xpos;
+    float ypos;
+    float zpos;
+
+    float r;
+}Coin;
+
 
 //Promenljive
 
@@ -73,7 +82,14 @@ float size_floor;
 //Niz pozicija delova koji cine put.
 float parts[BR];
 
+//Niz koji sadrzi prepreke
 Obstacle obstacles[MAX_OBSTACLES];
+
+//Niz koji sadrzi novcice
+Coin coins[MAX_COINS];
+
+//Parametar rotacije novcica
+float coin_rotation;
 
 //Uglovi tela trkaca
 float lower_arm;

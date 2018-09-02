@@ -130,9 +130,10 @@ static void on_timer(int id){
 
    //Azurira se parametar animacije.
    animation_parameter += param;
+   coin_rotation+=1.5;
 
    //U zavisnosti od parametra animacije se ubrzava animacija.
-   if((int)animation_parameter%400 == 0 && animation_parameter<(int)animation_parameter+0.2 && param < 16){
+   if((int)animation_parameter%300 == 0 && animation_parameter<(int)animation_parameter+0.2 && param < 16){
          param*=2;
          speed*=1.5;
     }
@@ -144,6 +145,7 @@ static void on_timer(int id){
     updateJump();
     updateMovement();
     updateAngles();
+    updateCoins();
 
 
 
@@ -183,6 +185,7 @@ void initialize(){
   jumping = 0;
   jump = 0;
   dir = 0;
+  coin_rotation=0;
 
   srand(time(NULL));
 
@@ -211,6 +214,14 @@ void initialize(){
       obstacles[i].x = 5;
       obstacles[i].y = 5;
       obstacles[i].z = 5;
+  }
+
+  for(i=0; i<MAX_COINS;i++){
+      coins[i].xpos = 0;
+      coins[i].ypos = -1;
+      coins[i].zpos = -(BR-1)*size_floor+size_floor/3;
+
+      coins[i].r = 1;
   }
 
   Image * image;
@@ -245,18 +256,18 @@ void initialize(){
                GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
   /* Kreira se druga tekstura. */
-  image_read(image, FILENAME1);
+   image_read(image, FILENAME1);
 
-  glBindTexture(GL_TEXTURE_2D, names[1]);
+   glBindTexture(GL_TEXTURE_2D, names[1]);
+   glTexParameteri(GL_TEXTURE_2D,
+                   GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D,
-                  GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D,
-                  GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-               image->width, image->height, 0,
-               GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+                   GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                image->width, image->height, 0,
+                GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
                /* Kreira se druga tekstura. */
    image_read(image, FILENAME2);
@@ -331,7 +342,7 @@ static void on_display(void){
     gluLookAt(0,10,20,0,0,0,0,1,0);
 
     //Crta se kvadar koji okruzuje trkaca
-    draw_cube(runner.xpos,runner.ypos,runner.zpos,runner.x,runner.y,runner.z);
+    //draw_cube(runner.xpos,runner.ypos,runner.zpos,runner.x,runner.y,runner.z);
 
     //Crtanje robota.
     draw_robo();
@@ -340,11 +351,19 @@ static void on_display(void){
     draw_road();
 
     //Crtanje prepreka;
-    draw_obstacle();
-    //int i;
+    draw_obstacles();
+    // int i;
     // for(i=0;i<MAX_OBSTACLES;i++){
     //     if(obstacles[i].ypos!=-1)
     //     printf("x: %lf, y: %lf, z: %lf\n", obstacles[i].xpos,obstacles[i].ypos,obstacles[i].zpos);
+    // }
+
+    draw_coins();
+
+    // int i;
+    // for(i=0;i<MAX_COINS;i++){
+    //     if(coins[i].ypos!=-1)
+    //     printf("x: %lf, y: %lf, z: %lf\n", coins[i].xpos,coins[i].ypos,coins[i].zpos);
     // }
 
     glutSwapBuffers();

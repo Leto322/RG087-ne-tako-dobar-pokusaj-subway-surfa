@@ -7,5 +7,6 @@ void updateAngles();
 void updateMovement();
 void updateRoad();
 void updateObstacle();
+void updateCoins();
 
 #endif

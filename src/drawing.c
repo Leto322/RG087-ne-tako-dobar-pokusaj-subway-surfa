@@ -205,7 +205,8 @@ void draw_robo(void){
     glPopMatrix();
 }
 
-void draw_obstacle(){
+//Funkcija koja crta prepreke
+void draw_obstacles(){
     int i;
     for(i=0;i<MAX_OBSTACLES;i++){
         if(obstacles[i].ypos!=-1){
@@ -283,21 +284,39 @@ void draw_obstacle(){
     }
 }
 
-//Dodajemo od 0 do 2 prepreke na svakih 100 unita na poslednjoj ploci
-void add_obstacles(void){
+//Dodajemo od 0 do 2 prepreke i 2-prepreke novcica na svakih 100 unita na poslednjoj ploci
+void add_obstacles_and_coins(void){
+    //Pomocne brojacke promenljive
     int i;
     int j;
     int r;
     int k;
+    //Pozicija na koju se stavlja prepreka ili novcic
     int place;
+    //Prethodna pozicija na koju je stavljena prepreka
     int previous;
+
+    //Pozicije na koje su eventualno stavljeni novcici
+    int previous1;
+    int previous2;
+
+    //Pozicije na koje su eventualno stavljene prepreke
+    int position1;
+    int position2;
     for(i=0;i<3;i++){
         r = rand()%3;
         previous = -1;
+        position1=-1;
+        position2=-1;
         for(k=0;k<r;k++){
             place = rand()%3;
             if(place == previous){
                 place = (previous+1)%3;
+            }
+            if(position1==-1)
+                position1=place;
+            else{
+                position2=place;
             }
             for(j=0;j<MAX_OBSTACLES;j++){
                 if(obstacles[j].ypos==-1){
@@ -322,13 +341,48 @@ void add_obstacles(void){
                 }
             }
             previous=place;
-
         }
+        r = rand()%(3-r);
+        previous1=-1;
+        previous2=-1;
+        for(k=0;k<=r;k++){
+            place = rand()%3;
 
+            while(place == position1 || place == position2 || place == previous1 || place == previous2){
+                place = rand()%3;
+            }
+            if(previous1==-1){
+                previous1=place;
+            }else{
+                previous2=place;
+            }
+            for(j=0;j<MAX_COINS;j++){
+                if(coins[j].ypos==-1){
+                    switch(place){
+                        case 0:
+                            coins[j].xpos = -10;
+                            coins[j].ypos = 2.5;
+                            coins[j].zpos -= i*(size_floor/3);
+                            break;
+                        case 1:
+                            coins[j].xpos = 0;
+                            coins[j].ypos = 2.5;
+                            coins[j].zpos -= i*(size_floor/3);
+                            break;
+                        case 2:
+                            coins[j].xpos = 10;
+                            coins[j].ypos = 2.5;
+                            coins[j].zpos -= i*(size_floor/3);
+                            break;
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
 
-//Iscrtavanje scene
+//Iscrtavanje okruzenja
 void draw_road(void){
     //Pomocni parametar
     int i;
@@ -343,14 +397,20 @@ void draw_road(void){
 
                 //Prekida se sa iscrtavanjem prepreka koje su prosle iza igraca;
                 for(j=0;j<MAX_OBSTACLES;j++){
-                    if(obstacles[i].zpos>size_floor)
+                    if(obstacles[i].zpos>size_floor/2){
                         obstacles[i].ypos = -1;
                         obstacles[i].zpos = -(BR-1)*size_floor+size_floor/3;
+                    }
                 }
 
-                //Svaki pud kada ploca ode na kraj pravimo prepreke na njoj
-                //Pomocni parametar
-                add_obstacles();
+                for(j=0;j<MAX_COINS;j++){
+                    if(coins[i].zpos>size_floor/2){
+                        coins[i].ypos = -1;
+                        coins[i].zpos = -(BR-1)*size_floor+size_floor/3;
+                    }
+                }
+
+                add_obstacles_and_coins();
 
 
             }
@@ -427,5 +487,42 @@ void draw_road(void){
         glPopMatrix();
 
     }
+
+}
+
+
+void draw_coins(void){
+    GLUquadricObj *quad;
+    quad = gluNewQuadric();
+    int i;
+
+    for(i=0;i<MAX_COINS;i++){
+        if(coins[i].ypos!=-1){
+            glPushMatrix();
+                glTranslatef(coins[i].xpos, coins[i].ypos, coins[i].zpos);
+                glColor4f(1,1,0,1);
+                glRotatef(coin_rotation,0,1,0);
+                glTranslatef(0,0,-0.25);
+                gluCylinder(quad, 1, 1, 0.5, 50, 50);
+                gluDisk(quad, 0,1,30,30);
+                glTranslatef(0,0,0.5);
+                glRotatef(180,0,1,0);
+                gluDisk(quad, 0,1,30,30);
+            glPopMatrix();
+        }
+    }
+
+    // glDisable(GL_LIGHTING);
+    //
+    // glColor3f(1,1,1);
+    // glLineWidth(12);
+    // glBegin(GL_LINES);
+    //     glVertex3f(0,0,3);
+    //     glVertex3f(0,0,-3);
+    //     glVertex3f(0,3,0);
+    //     glVertex3f(0,-3,0);
+    // glEnd();
+    // glEnable(GL_LIGHTING);
+
 
 }

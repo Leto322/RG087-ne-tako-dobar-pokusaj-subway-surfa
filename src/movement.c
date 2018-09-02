@@ -269,3 +269,12 @@ void updateObstacle(){
             obstacles[i].zpos+=param;
     }
 }
+
+void updateCoins(){
+    int i;
+    for(i=0;i<MAX_COINS;i++){
+        if(coins[i].ypos!=-1)
+            coins[i].zpos+=param;
+    }
+
+}
