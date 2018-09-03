@@ -285,9 +285,6 @@ void update_coins(){
 
 //Funkcija koja vrsi proveru sudara izmedju trkaca i novcica ili prepreka.
 void check_collisions(){
-    if(invulnerable)
-        return;
-
     int i;
 
     //Prepreke

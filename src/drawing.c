@@ -191,7 +191,7 @@ void draw_runner(void){
     glTranslatef(0,-runner.ypos+2.4,0);
     glTranslatef(0,-gd,0);
     glPushMatrix();
-        glColor4f(0.3,0.3,0.3,0.8);//-(jump/7)*0.8);
+        glColor4f(0.3,0.3,0.3,0.8);
 
         glTranslatef(0.17,-3.01,0.4);
         glRotatef(90,1,0,0);

@@ -1,5 +1,5 @@
 #ifndef MOVEMENT_H
-#define MMOVEMENT_H
+#define MOVEMENT_H
 
 //Deklaracije funkcija za promenu parametara
 void update_jump();

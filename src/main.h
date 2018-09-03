@@ -76,9 +76,6 @@ int shake;
 //Parametar koji oznacava da li je igrac izgubio.
 int game_over;
 
-//Parametar koji govori da igrac ne moze da interaguje sa novcicima i preprekama. (0 moze 1 ne moze)
-int invulnerable;
-
 //Broj sakupljenih novcica. (na svakih 10 igrac dobija nov zivot)
 int num_coins;
 

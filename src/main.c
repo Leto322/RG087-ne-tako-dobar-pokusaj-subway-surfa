@@ -244,7 +244,7 @@ void textures_and_lighting(){
                   image->width, image->height, 0,
                   GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
-                 /* Kreira se treca tekstura. */
+     /* Kreira se treca tekstura. */
      image_read(image, FILENAME2);
 
      glBindTexture(GL_TEXTURE_2D, names[2]);
@@ -337,7 +337,6 @@ void initialize(){
   coin_rotation=0;
   num_coins=0;
   num_lives=3;
-  invulnerable=0;
   game_over=0;
   shake = 0;
 
