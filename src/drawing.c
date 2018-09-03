@@ -525,6 +525,7 @@ void draw_coins(void){
 }
 
 
+//Funkcija koja ispisuje tekst na ekranu
 void display_text(void){
     glPopMatrix();
     glDisable(GL_LIGHTING);
