@@ -2,10 +2,10 @@
 
 ![Izgled igrice](/Screenshots/Verzija6slika2.png)
 
-##Opis
+## Opis
 Projekat predstavlja igricu u kojoj igrac kontrolise trkaca koji skuplja novcice i izbegava kutije. Cilj je sto duze preziveti.
 
-##Pokretanje
+## Pokretanje
 Nakon skidanja repozitorijuma izvrsiti:
 ```
 $ make
@@ -13,8 +13,8 @@ $ ./runner
 ```
 
 
-##Kontrole
-| **taster** | ** akcija ** |
+## Kontrole
+| **Taster** | **Akcija** |
 | :--- | :--- |
 | 'g' ili 'G' | Pokretanje igrice |
 | 's' ili 'S' | Pauziranje igrice |
@@ -26,5 +26,5 @@ $ ./runner
 | ESC | Zatvaranje programa |
 
 
-##Autor
+## Autor
 Branko Djakovic
