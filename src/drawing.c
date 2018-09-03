@@ -14,7 +14,7 @@ void draw_cube(float xpos, float ypos, float zpos, float a, float b, float c){
 }
 
 //Funkcija koja crta trkaca.
-void draw_robo(void){
+void draw_runner(void){
   GLUquadricObj *quad;
   quad = gluNewQuadric();
   glPushMatrix();
@@ -119,7 +119,7 @@ void draw_robo(void){
     glPushMatrix();
     glColor4f(0,0,1,1);
     glPushMatrix();
-            glTranslatef(0, -1.1, 0);
+            glTranslatef(0, -1, 0);
             glScalef(0.5, 0.4, 0.6);
             glutSolidCube(1);
     glPopMatrix();
@@ -206,7 +206,7 @@ void draw_robo(void){
 }
 
 //Funkcija koja crta prepreke
-void draw_obstacles(){
+void draw_obstacles(void){
     int i;
     for(i=0;i<MAX_OBSTACLES;i++){
         if(obstacles[i].ypos!=-1){
@@ -522,4 +522,21 @@ void draw_coins(void){
 
 
 
+}
+
+
+void display_text(void){
+    glPopMatrix();
+    glDisable(GL_LIGHTING);
+    glColor4f(1,1,1,1);
+    if(game_over){
+        sprintf(text, "GAME OVER    (Press r/R to restart.)\nScore: %d", (int)animation_parameter);
+    }
+    else{
+        sprintf(text, "Score: %d    Coins: %d   Lives: %d", (int)animation_parameter, num_coins, num_lives);
+    }
+    glRasterPos3f(-1.5,1,15);
+    glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24,text);
+    glEnable(GL_LIGHTING);
+    glPushMatrix();
 }

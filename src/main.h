@@ -11,7 +11,7 @@
 
 #define TIMER_ID 0
 #define BR 5
-#define TIMER_INTERVAL 20
+#define TIMER_INTERVAL 10
 #define PI 3.1415926535
 #define MAX_OBSTACLES (7*BR)
 #define MAX_COINS (7*BR)
@@ -21,9 +21,10 @@
 #define FILENAME1 "concrete.bmp"
 #define FILENAME2 "wall.bmp"
 
-//Deklaracija funkcije za inicijalizaciju.
+//Deklaracija funkcije za inicijalizaciju parametara.
 void initialize();
 
+//Deklaracija funkcije za postavljanje osvetljenja i inicijalizaciju tekstura
 void textures_and_lighting();
 
 
@@ -63,7 +64,11 @@ typedef struct{
 }Coin;
 
 
+
 //Promenljive
+
+//Niska koja sadrzi tekst koji se ispisuje na ekran.
+char text[1000];
 
 //Parametar tresanja ekrana.
 int shake;

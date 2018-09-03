@@ -18,7 +18,7 @@ int main(int argc, char** argv){
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
     //Kreira se prozor.
-    glutInitWindowSize(500, 500);
+    glutInitWindowSize(600, 600);
     glutInitWindowPosition(100,100);
     glutCreateWindow(argv[0]);
 
@@ -148,11 +148,14 @@ static void on_timer(int id){
    coin_rotation+=1.5;
 
    //U zavisnosti od parametra animacije se ubrzava animacija.
-   if((int)animation_parameter%300 == 0 && animation_parameter<(int)animation_parameter+0.2 && param < 16){
+   if((int)animation_parameter%400 == 0 && animation_parameter<(int)animation_parameter+0.2 && param < 12){
          param*=2;
          speed*=1.5;
     }
 
+    //Provera sudara. (I pre i posle pomeranja novcica se vrsi provera sudara zato sto moze da se desi da u trenutku
+    //prolaska kroz novcic dodje do ubrzanja animacije i trkac protrci kroz novcic i ne pokupi ga).
+    check_collisions();
 
     //Funkcije koje vrse promenu parametara animacije.
     update_obstacle();
@@ -165,15 +168,19 @@ static void on_timer(int id){
     //Provera sudara.
     check_collisions();
 
+
+    //Dekremetira se parametar drmusanja
     if(shake!=0){
         shake-=1;
     }
 
+    //Ako je skupljeno 20 novica igrac dobija 1 zivot
     if(num_coins==20){
         num_coins=0;
         num_lives+=1;
     }
 
+    //Ako igrac padne na 0 zivota gubi igru
     if(num_lives==0){
         game_over=1;
         animation_ongoing=0;
@@ -336,7 +343,7 @@ void initialize(){
 
   //Inicijalizuje se pozicija trkaca i dimenzije kvadra koji ga obuhvata.
   runner.xpos = 0;
-  runner.ypos = 2.35;
+  runner.ypos = 2.3;
   runner.zpos = 0;
 
   runner.x = 2.35;
@@ -390,7 +397,7 @@ static void on_display(void){
     //draw_cube(runner.xpos,runner.ypos,runner.zpos,runner.x,runner.y,runner.z);
 
     //Crtanje robota.
-    draw_robo();
+    draw_runner();
 
     //Crtanje puta.
     draw_road();
@@ -400,6 +407,9 @@ static void on_display(void){
 
     //Crtanje novcica
     draw_coins();
+
+    //Ispis teksta.
+    display_text();
 
     glutSwapBuffers();
 }

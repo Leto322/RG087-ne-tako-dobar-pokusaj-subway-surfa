@@ -51,8 +51,8 @@ void update_movement(){
           movement+=0.1*speed;
           runner.xpos += 0.1*speed;
           if(movement>0){
-            movement=0;
             runner.xpos -= movement;
+            movement=0;
           }
         }
         else{
@@ -65,8 +65,8 @@ void update_movement(){
           movement+=0.1*speed;
           runner.xpos+=0.1*speed;
           if(movement>10){
-            movement=10;
             runner.xpos-=(movement-10);
+            movement=10;
           }
         }
         else{
@@ -81,8 +81,8 @@ void update_movement(){
           movement-=0.1*speed;
           runner.xpos-=0.1*speed;
           if(movement<-10){
-            movement=-10;
             runner.xpos+=-(movement+10);
+            movement=-10;
           }
         }
         else{
@@ -95,8 +95,8 @@ void update_movement(){
           movement-=0.1*speed;
           runner.xpos-=0.1*speed;
           if(movement<0){
-            movement=0;
             runner.xpos+=-movement;
+            movement=0;
           }
         }
         else{
@@ -295,13 +295,13 @@ void check_collisions(){
         if(obstacles[i].ypos != -1){
             if(abs(runner.xpos-obstacles[i].xpos)<runner.x/2 + obstacles[i].x/2){
                 if(abs(runner.ypos-obstacles[i].ypos)<runner.y/2+obstacles[i].y/2){
-                    if(abs(runner.zpos-obstacles[i].zpos)<runner.z/2+obstacles[i].z/2){
-                        //invulnerable=1;
+                    //Ako u sledecem frejmu trkac bude iza prednje strane prepreke a trenutno je ispred, obradjuje se sudar.
+                    if(runner.zpos > (obstacles[i].zpos+obstacles[i].z/2) && (runner.zpos < obstacles[i].zpos+obstacles[i].z/2+param)){
                         num_lives-=1;
                         obstacles[i].ypos=-1;
                         obstacles[i].zpos= -(BR-1)*size_floor+size_floor/3;
                         param/=2;
-                        speed/=3/2;
+                        speed/=1.5;
                         shake = 5;
                         return;
                     } //cetvrti if
@@ -316,7 +316,8 @@ void check_collisions(){
         if(coins[i].ypos != -1){
             if(abs(runner.xpos-coins[i].xpos)<runner.x/2 + coins[i].r/2){
                 if(abs(runner.ypos-coins[i].ypos)<runner.y/2+coins[i].r/2){
-                    if(abs(runner.zpos-coins[i].zpos)<runner.z/2+coins[i].r/2){
+                    //Ako u sledecem frejmu trkac bude iza novcica a trenutno je ispred, kupi ga.
+                    if(runner.zpos > coins[i].zpos && (runner.zpos < coins[i].zpos+param)){
                         num_coins+=1;
                         coins[i].ypos=-1;
                         coins[i].zpos= -(BR-1)*size_floor+size_floor/3;
